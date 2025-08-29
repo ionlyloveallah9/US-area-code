@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Area Code & State Time Lookup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a2a, #1a1a4a, #0a0a2a);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 20, 100, 0.4), transparent);
+            pointer-events: none;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: rgba(10, 15, 40, 0.8);
+            border: 3px solid #ff0033;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5), 
+                        0 0 40px rgba(0, 80, 255, 0.5) inset;
+            position: relative;
+            z-index: 1;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(0, 150, 255, 0.8);
+            color: #4db8ff;
+        }
+        
+        .description {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #aaccff;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+        
+        input {
+            padding: 15px 20px;
+            width: 300px;
+            border: 2px solid #4db8ff;
+            border-radius: 50px;
+            background: rgba(0, 10, 30, 0.7);
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 100, 255, 0.3);
+        }
+        
+        input:focus {
+            border-color: #ff0033;
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.5);
+        }
+        
+        input::placeholder {
+            color: #8899cc;
+        }
+        
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(to right, #ff0033, #cc0022);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.4);
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, #ff3357, #ff0015);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.6);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .result-card {
+            background: rgba(0, 20, 60, 0.6);
+            border: 2px solid #4db8ff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 100, 255, 0.3);
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 150, 255, 0.5);
+            border-color: #00ccff;
+        }
+        
+        .area-code {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff0033;
+            text-shadow: 0 0 10px rgba(255, 0, 51, 0.4);
+        }
+        
+        .state {
+            font-size: 1.5rem;
+            color: #4db8ff;
+            text-align: center;
+        }
+        
+        .time {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00ff99;
+            text-shadow: 0 0 10px rgba(0, 255, 153, 0.4);
+            text-align: right;
+        }
+        
+        .time-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #aaccff;
+            margin-top: 5px;
+        }
+        
+        .instructions {
+            text-align: center;
+            margin-top: 30px;
+            color: #8899cc;
+            font-size: 1.1rem;
+        }
+        
+        .glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(rgba(0, 100, 255, 0.4), transparent);
+            filter: blur(50px);
+            z-index: 0;
+        }
+        
+        .glow-1 {
+            top: 10%;
+            left: 10%;
+        }
+        
+        .glow-2 {
+            bottom: 10%;
+            right: 10%;
+            background: radial-gradient(rgba(255, 0, 51, 0.3), transparent);
+        }
+        
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            input {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .result-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .area-code, .state, .time {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    
+    <div class="container">
+        <header>
+            <h1>US Area Code & State Time Lookup</h1>
+        </header>
+        
+        <div class="search-container">
+            <input type="text" id="areaCodeInput" placeholder="Enter 3-digit area code (e.g., 212)" maxlength="3" pattern="\d{3}">
+            <button id="searchBtn">Search</button>
+        </div>
+        
+        <div class="results-container" id="resultsContainer">
+            <!-- Results will be displayed here -->
+        </div>
+       
+    </div>
+
+    <script>
+        // Area code to state mapping
+        const areaCodeToState = {
+            "201": "New Jersey",
+            "202": "District of Columbia",
+            "203": "Connecticut",
+            "205": "Alabama",
+            "206": "Washington",
+            "207": "Maine",
+            "208": "Idaho",
+            "209": "California",
+            "210": "Texas",
+            "212": "New York",
+            "213": "California",
+            "214": "Texas",
+            "215": "Pennsylvania",
+            "216": "Ohio",
+            "217": "Illinois",
+            "218": "Minnesota",
+            "219": "Indiana",
+            "224": "Illinois",
+            "225": "Louisiana",
+            "228": "Mississippi",
+            "229": "Georgia",
+            "231": "Michigan",
+            "234": "Ohio",
+            "239": "Florida",
+            "240": "Maryland",
+            "248": "Michigan",
+            "251": "Alabama",
+            "252": "North Carolina",
+            "253": "Washington",
+            "254": "Texas",
+            "256": "Alabama",
+            "260": "Indiana",
+            "262": "Wisconsin",
+            "267": "Pennsylvania",
+            "269": "Michigan",
+            "270": "Kentucky",
+            "272": "Pennsylvania",
+            "274": "Wisconsin",
+            "276": "Virginia",
+            "281": "Texas",
+            "301": "Maryland",
+            "302": "Delaware",
+            "303": "Colorado",
+            "304": "West Virginia",
+            "305": "Florida",
+            "307": "Wyoming",
+            "308": "Nebraska",
+            "309": "Illinois",
+            "310": "California",
+            "312": "Illinois",
+            "313": "Michigan",
+            "314": "Missouri",
+            "315": "New York",
+            "316": "Kansas",
+            "317": "Indiana",
+            "318": "Louisiana",
+            "319": "Iowa",
+            "320": "Minnesota",
+            "321": "Florida",
+            "323": "California",
+            "325": "Texas",
+            "330": "Ohio",
+            "331": "Illinois",
+            "332": "New York",
+            "334": "Alabama",
+            "336": "North Carolina",
+            "337": "Louisiana",
+            "339": "Massachusetts",
+            "346": "Texas",
+            "347": "New York",
+            "351": "Massachusetts",
+            "352": "Florida",
+            "360": "Washington",
+            "361": "Texas",
+            "364": "Kentucky",
+            "385": "Utah",
+            "386": "Florida",
+            "401": "Rhode Island",
+            "402": "Nebraska",
+            "404": "Georgia",
+            "405": "Oklahoma",
+            "406": "Montana",
+            "407": "Florida",
+            "408": "California",
+            "409": "Texas",
+            "410": "Maryland",
+            "412": "Pennsylvania",
+            "413": "Massachusetts",
+            "414": "Wisconsin",
+            "415": "California",
+            "417": "Missouri",
+            "419": "Ohio",
+            "423": "Tennessee",
+            "424": "California",
+            "425": "Washington",
+            "430": "Texas",
+            "432": "Texas",
+            "434": "Virginia",
+            "435": "Utah",
+            "440": "Ohio",
+            "442": "California",
+            "443": "Maryland",
+            "445": "Pennsylvania",
+            "447": "Illinois",
+            "458": "Oregon",
+            "463": "Indiana",
+            "464": "Illinois",
+            "469": "Texas",
+            "470": "Georgia",
+            "475": "Connecticut",
+            "478": "Georgia",
+            "479": "Arkansas",
+            "480": "Arizona",
+            "484": "Pennsylvania",
+            "501": "Arkansas",
+            "502": "Kentucky",
+            "503": "Oregon",
+            "504": "Louisiana",
+            "505": "New Mexico",
+            "507": "Minnesota",
+            "508": "Massachusetts",
+            "509": "Washington",
+            "510": "California",
+            "512": "Texas",
+            "513": "Ohio",
+            "515": "Iowa",
+            "516": "New York",
+            "517": "Michigan",
+            "518": "New York",
+            "520": "Arizona",
+            "530": "California",
+            "531": "Nebraska",
+            "534": "Wisconsin",
+            "539": "Oklahoma",
+            "540": "Virginia",
+            "541": "Oregon",
+            "551": "New Jersey",
+            "557": "Missouri",
+            "559": "California",
+            "561": "Florida",
+            "562": "California",
+            "563": "Iowa",
+            "564": "Washington",
+            "567": "Ohio",
+            "570": "Pennsylvania",
+            "571": "Virginia",
+            "572": "Oklahoma",
+            "573": "Missouri",
+            "574": "Indiana",
+            "575": "New Mexico",
+            "580": "Oklahoma",
+            "585": "New York",
+            "586": "Michigan",
+            "601": "Mississippi",
+            "602": "Arizona",
+            "603": "New Hampshire",
+            "605": "South Dakota",
+            "606": "Kentucky",
+            "607": "New York",
+            "608": "Wisconsin",
+            "609": "New Jersey",
+            "610": "Pennsylvania",
+            "612": "Minnesota",
+            "614": "Ohio",
+            "615": "Tennessee",
+            "616": "Michigan",
+            "617": "Massachusetts",
+            "618": "Illinois",
+            "619": "California",
+            "620": "Kansas",
+            "623": "Arizona",
+            "626": "California",
+            "628": "California",
+            "629": "Tennessee",
+            "630": "Illinois",
+            "631": "New York",
+            "636": "Missouri",
+            "640": "New Jersey",
+            "641": "Iowa",
+            "646": "New York",
+            "650": "California",
+            "651": "Minnesota",
+            "657": "California",
+            "659": "Alabama",
+            "660": "Missouri",
+            "661": "California",
+            "662": "Mississippi",
+            "667": "Maryland",
+            "669": "California",
+            "670": "Northern Mariana Islands",
+            "671": "Guam",
+            "678": "Georgia",
+            "680": "New York",
+            "681": "West Virginia",
+            "682": "Texas",
+            "684": "American Samoa",
+            "701": "North Dakota",
+            "702": "Nevada",
+            "703": "Virginia",
+            "704": "North Carolina",
+            "706": "Georgia",
+            "707": "California",
+            "708": "Illinois",
+            "712": "Iowa",
+            "713": "Texas",
+            "714": "California",
+            "715": "Wisconsin",
+            "716": "New York",
+            "717": "Pennsylvania",
+            "718": "New York",
+            "719": "Colorado",
+            "720": "Colorado",
+            "724": "Pennsylvania",
+            "725": "Nevada",
+            "727": "Florida",
+            "731": "Tennessee",
+            "732": "New Jersey",
+            "734": "Michigan",
+            "737": "Texas",
+            "740": "Ohio",
+            "743": "North Carolina",
+            "747": "California",
+            "754": "Florida",
+            "757": "Virginia",
+            "760": "California",
+            "762": "Georgia",
+            "763": "Minnesota",
+            "764": "California",
+            "765": "Indiana",
+            "769": "Mississippi",
+            "770": "Georgia",
+            "772": "Florida",
+            "773": "Illinois",
+            "774": "Massachusetts",
+            "775": "Nevada",
+            "779": "Illinois",
+            "781": "Massachusetts",
+            "785": "Kansas",
+            "786": "Florida",
+            "787": "Puerto Rico",
+            "801": "Utah",
+            "802": "Vermont",
+            "803": "South Carolina",
+            "804": "Virginia",
+            "805": "California",
+            "806": "Texas",
+            "808": "Hawaii",
+            "810": "Michigan",
+            "812": "Indiana",
+            "813": "Florida",
+            "814": "Pennsylvania",
+            "815": "Illinois",
+            "816": "Missouri",
+            "817": "Texas",
+            "818": "California",
+            "828": "North Carolina",
+            "830": "Texas",
+            "831": "California",
+            "832": "Texas",
+            "835": "Pennsylvania",
+            "843": "South Carolina",
+            "845": "New York",
+            "847": "Illinois",
+            "848": "New Jersey",
+            "850": "Florida",
+            "856": "New Jersey",
+            "857": "Massachusetts",
+            "858": "California",
+            "859": "Kentucky",
+            "860": "Connecticut",
+            "862": "New Jersey",
+            "863": "Florida",
+            "864": "South Carolina",
+            "865": "Tennessee",
+            "870": "Arkansas",
+            "872": "Illinois",
+            "878": "Pennsylvania",
+            "901": "Tennessee",
+            "903": "Texas",
+            "904": "Florida",
+            "906": "Michigan",
+            "907": "Alaska",
+            "908": "New Jersey",
+            "909": "California",
+            "910": "North Carolina",
+            "912": "Georgia",
+            "913": "Kansas",
+            "914": "New York",
+            "915": "Texas",
+            "916": "California",
+            "917": "New York",
+            "918": "Oklahoma",
+            "919": "North Carolina",
+            "920": "Wisconsin",
+            "925": "California",
+            "928": "Arizona",
+            "929": "New York",
+            "930": "Indiana",
+            "931": "Tennessee",
+            "934": "New York",
+            "936": "Texas",
+            "937": "Ohio",
+            "938": "Alabama",
+            "939": "Puerto Rico",
+            "940": "Texas",
+            "941": "Florida",
+            "945": "Texas",
+            "947": "Michigan",
+            "949": "California",
+            "951": "California",
+            "952": "Minnesota",
+            "954": "Florida",
+            "956": "Texas",
+            "957": "New Mexico",
+            "959": "Connecticut",
+            "970": "Colorado",
+            "971": "Oregon",
+            "972": "Texas",
+            "973": "New Jersey",
+            "975": "Missouri",
+            "978": "Massachusetts",
+            "979": "Texas",
+            "980": "North Carolina",
+            "984": "North Carolina",
+            "985": "Louisiana",
+            "986": "Idaho",
+            "989": "Michigan"
+        };
+
+        // State to timezone mapping
+        const stateToTimezone = {
+            "Alabama": "America/Chicago",
+            "Alaska": "America/Anchorage",
+            "Arizona": "America/Phoenix",
+            "Arkansas": "America/Chicago",
+            "California": "America/Los_Angeles",
+            "Colorado": "America/Denver",
+            "Connecticut": "America/New_York",
+            "Delaware": "America/New_York",
+            "District of Columbia": "America/New_York",
+            "Florida": "America/New_York",
+            "Georgia": "America/New_York",
+            "Hawaii": "Pacific/Honolulu",
+            "Idaho": "America/Denver",
+            "Illinois": "America/Chicago",
+            "Indiana": "America/New_York",
+            "Iowa": "America/Chicago",
+            "Kansas": "America/Chicago",
+            "Kentucky": "America/New_York",
+            "Louisiana": "America/Chicago",
+            "Maine": "America/New_York",
+            "Maryland": "America/New_York",
+            "Massachusetts": "America/New_York",
+            "Michigan": "America/New_York",
+            "Minnesota": "America/Chicago",
+            "Mississippi": "America/Chicago",
+            "Missouri": "America/Chicago",
+            "Montana": "America/Denver",
+            "Nebraska": "America/Chicago",
+            "Nevada": "America/Los_Angeles",
+            "New Hampshire": "America/New_York",
+            "New Jersey": "America/New_York",
+            "New Mexico": "America/Denver",
+            "New York": "America/New_York",
+            "North Carolina": "America/New_York",
+            "North Dakota": "America/Chicago",
+            "Ohio": "America/New_York",
+            "Oklahoma": "America/Chicago",
+            "Oregon": "America/Los_Angeles",
+            "Pennsylvania": "America/New_York",
+            "Rhode Island": "America/New_York",
+            "South Carolina": "America/New_York",
+            "South Dakota": "America/Chicago",
+            "Tennessee": "America/Chicago",
+            "Texas": "America/Chicago",
+            "Utah": "America/Denver",
+            "Vermont": "America/New_York",
+            "Virginia": "America/New_York",
+            "Washington": "America/Los_Angeles",
+            "West Virginia": "America/New_York",
+            "Wisconsin": "America/Chicago",
+            "Wyoming": "America/Denver",
+            "Guam": "Pacific/Guam",
+            "Puerto Rico": "America/Puerto_Rico",
+            "Northern Mariana Islands": "Pacific/Saipan",
+            "American Samoa": "Pacific/Pago_Pago"
+        };
+
+        document.getElementById('searchBtn').addEventListener('click', searchAreaCode);
+        document.getElementById('areaCodeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchAreaCode();
+            }
+        });
+
+        function searchAreaCode() {
+            const input = document.getElementById('areaCodeInput');
+            const areaCode = input.value.trim();
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            
+            // Validate input
+            if (!/^\d{3}$/.test(areaCode)) {
+                resultsContainer.innerHTML = '<div class="result-card"><div class="area-code">Invalid Input</div><div class="state">Please enter a valid 3-digit area code</div><div class="time">--:--:--<span class="time-label">CURRENT TIME</span></div></div>';
+                input.value = '';
+                input.focus();
+                return;
+            }
+            
+            // Lookup area code
+            if (areaCodeToState.hasOwnProperty(areaCode)) {
+                const state = areaCodeToState[areaCode];
+                const timezone = stateToTimezone[state] || "America/New_York";
+                
+                const resultCard = document.createElement('div');
+                resultCard.className = 'result-card';
+                resultCard.innerHTML = `
+                    <div class="area-code">${areaCode}</div>
+                    <div class="state">${state}</div>
+                    <div class="time">--:--:--<span class="time-label">CURRENT TIME</span></div>
+                `;
+                resultsContainer.appendChild(resultCard);
+                
+                // Start updating the time
+                updateTime(resultCard.querySelector('.time'), timezone);
+            } else {
+                resultsContainer.innerHTML = '<div class="result-card"><div class="area-code">Area Code Not Found</div><div class="state">The area code ' + areaCode + ' is not in our database</div><div class="time">--:--:--<span class="time-label">CURRENT TIME</span></div></div>';
+            }
+            
+            // Clear input and refocus
+            input.value = '';
+            input.focus();
+        }
+
+        function updateTime(element, timezone) {
+            function update() {
+                try {
+                    const options = { timeZone: timezone, hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                    const formatter = new Intl.DateTimeFormat('en-US', options);
+                    const parts = formatter.formatToParts(new Date());
+                    
+                    let hour = '', minute = '', second = '', dayPeriod = '';
+                    
+                    for (const part of parts) {
+                        if (part.type === 'hour') hour = part.value;
+                        if (part.type === 'minute') minute = part.value;
+                        if (part.type === 'second') second = part.value;
+                        if (part.type === 'dayPeriod') dayPeriod = part.value;
+                    }
+                    
+                    element.innerHTML = `${hour}:${minute}:${second} <span class="time-label">${dayPeriod.toUpperCase()} ${getTimezoneAbbr(timezone)}</span>`;
+                } catch (e) {
+                    element.innerHTML = `Error: Invalid timezone`;
+                }
+            }
+            
+            // Update immediately and then every second
+            update();
+            setInterval(update, 1000);
+        }
+
+        function getTimezoneAbbr(timezone) {
+            const abbrMap = {
+                "America/New_York": "EST",
+                "America/Chicago": "CST",
+                "America/Denver": "MST",
+                "America/Los_Angeles": "PST",
+                "America/Phoenix": "MST",
+                "America/Anchorage": "AKST",
+                "Pacific/Honolulu": "HST"
+            };
+            
+            return abbrMap[timezone] || "";
+        }
+    </script>
+</body>
+</html>
