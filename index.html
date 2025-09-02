@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5372399177296795"
-     crossorigin="anonymous"></script>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>US Area Code & State Time Lookup</title>
@@ -205,6 +202,83 @@
             background: radial-gradient(rgba(255, 0, 51, 0.3), transparent);
         }
         
+        /* Ad container styles */
+        .ad-container {
+            width: 100%;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90px;
+            background: rgba(0, 15, 35, 0.6);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            overflow: hidden;
+        }
+        
+        .ad-label {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: #8899cc;
+            background: rgba(0, 10, 30, 0.7);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .ad-content {
+            padding: 15px;
+            color: #aaccff;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .ad-content a {
+            color: #4db8ff;
+            text-decoration: none;
+        }
+        
+        .ad-content a:hover {
+            text-decoration: underline;
+            color: #ff0033;
+        }
+        
+        /* Ad-specific styling */
+        .ad-top {
+            margin-bottom: 10px;
+        }
+        
+        .ad-middle {
+            margin: 25px 0;
+        }
+        
+        .ad-bottom {
+            margin-top: 10px;
+        }
+        
+        .ad-side {
+            display: none;
+        }
+        
+        @media (min-width: 992px) {
+            .ad-side {
+                display: flex;
+                position: fixed;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 160px;
+                min-height: 600px;
+                flex-direction: column;
+                justify-content: center;
+            }
+            
+            .main-content {
+                margin-right: 180px;
+            }
+        }
+        
         @media (max-width: 768px) {
             .search-container {
                 flex-direction: column;
@@ -229,6 +303,10 @@
             .area-code, .state, .time {
                 text-align: center;
             }
+            
+            .ad-container {
+                min-height: 70px;
+            }
         }
     </style>
 </head>
@@ -236,9 +314,26 @@
     <div class="glow glow-1"></div>
     <div class="glow glow-2"></div>
     
-    <div class="container">
+    <!-- Sidebar Ad (visible on larger screens) -->
+    <div class="ad-container ad-side">
+        <div class="ad-content">
+            <h3>Premium Lookup</h3>
+            <p>Upgrade for advanced features!</p>
+            <a href="#">Learn more</a>
+        </div>
+    </div>
+    
+    <div class="container main-content">
+        <!-- Top Ad -->
+        <div class="ad-container ad-top">
+            <div class="ad-content">
+                <p>Sponsored: <a href="#">Telecom Services - Get the best deals on phone plans!</a></p>
+            </div>
+        </div>
+        
         <header>
             <h1>US Area Code & State Time Lookup</h1>
+            <p class="description">Quickly lookup which US state corresponds to any area code and see the current local time</p>
         </header>
         
         <div class="search-container">
@@ -246,8 +341,22 @@
             <button id="searchBtn">Search</button>
         </div>
         
+        <!-- Middle Ad -->
+        <div class="ad-container ad-middle">
+            <div class="ad-content">
+                <p>Time zone converter tool - <a href="#">Try our premium version</a> for additional features!</p>
+            </div>
+        </div>
+        
         <div class="results-container" id="resultsContainer">
             <!-- Results will be displayed here -->
+        </div>
+        
+        <!-- Bottom Ad -->
+        <div class="ad-container ad-bottom">
+            <div class="ad-content">
+                <p>Sponsored: <a href="#">Business Phone Systems - Get professional numbers for your business!</a></p>
+            </div>
         </div>
        
     </div>
@@ -614,6 +723,7 @@
             "Missouri": "America/Chicago",
             "Montana": "America/Denver",
             "Nebraska": "America/Chicago",
+            "Nebraska": "America/Chicago",
             "Nevada": "America/Los_Angeles",
             "New Hampshire": "America/New_York",
             "New Jersey": "America/New_York",
@@ -733,5 +843,4 @@
         }
     </script>
 </body>
-
 </html>
